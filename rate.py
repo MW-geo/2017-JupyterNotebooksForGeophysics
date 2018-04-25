@@ -1,4 +1,4 @@
-def elastic_rate(hv_l, hs_l, v_l, s_l, rho_l, mu_l, nx_l, dx_l, order_l, t_l, y_l, r0_l, r1_l, tau0_1_l, tau0_2_l, tauN_1_l, tauN_2_l,hv_r, hs_r, v_r, s_r, rho_r, mu_r, nx_r, dx_r, order_r, t_r, y_r, r0_r, r1_r, tau0_1_r, tau0_2_r, tauN_1_r, tauN_2_r, slip, psi, dslip, dpsi, alpha, Tau_0, fric_law):
+def elastic_rate(hv_l, hs_l, v_l, s_l, rho_l, mu_l, nx_l, dx_l, order_l, t_l, y_l, r0_l, r1_l, tau0_1_l, tau0_2_l, tauN_1_l, tauN_2_l,hv_r, hs_r, v_r, s_r, rho_r, mu_r, nx_r, dx_r, order_r, t_r, y_r, r0_r, r1_r, tau0_1_r, tau0_2_r, tauN_1_r, tauN_2_r, slip, psi, dslip, dpsi,friction_parameters):
     
     nx_r =  nx_l
     dx_r = dx_l
@@ -61,7 +61,7 @@ def elastic_rate(hv_l, hs_l, v_l, s_l, rho_l, mu_l, nx_l, dx_l, order_l, t_l, y_
 
     I = np.zeros((nx_r, 1)) + 1.0
     
-    interface.couple_friction(hv_l, hs_l, hv_r, hs_r, v_l, s_l, v_r, s_r, slip, psi, order_r, nx_l, dx_l, dx_r, rho_l*I, mu_l*I, rho_r*I, mu_r*I, x, alpha, Tau_0, fric_law, dslip, dpsi)
+    interface.couple_friction(hv_l, hs_l, hv_r, hs_r, v_l, s_l, v_r, s_r, slip, psi, order_r, nx_l, dx_l, dx_r, rho_l*I, mu_l*I, rho_r*I, mu_r*I, x, friction_parameters, dslip, dpsi)
 
 
 

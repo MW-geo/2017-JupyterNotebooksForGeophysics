@@ -1,4 +1,4 @@
-def couple_friction(Hu_1,Hv_1,Hu_2,Hv_2, u_1,v_1,u_2,v_2, S, psi, order, nx, dx1, dx2, rho1, mu1,rho2,mu2, x, alpha, Tau_0, fric_law, dslip, dpsi):
+def couple_friction(Hu_1,Hv_1,Hu_2,Hv_2, u_1,v_1,u_2,v_2, S, psi, order, nx, dx1, dx2, rho1, mu1,rho2,mu2, x, friction_parameters, dslip, dpsi):
     
     import numpy as np
     import interfacedata
@@ -35,17 +35,19 @@ def couple_friction(Hu_1,Hv_1,Hu_2,Hv_2, u_1,v_1,u_2,v_2, S, psi, order, nx, dx1
 
 
     # generate interface data obeying frictional laws
-    friction_law_return = interfacedata.friction_law(u0, v0, u1, v1, S, psi, rho_0, mu_0, rho_1, mu_1, alpha,Tau_0,fric_law)
+    friction_law_return = interfacedata.friction_law(u0, v0, u1, v1, S, psi, rho_0, mu_0, rho_1, mu_1,friction_parameters)
     V_m = friction_law_return['V_m']
     V_p = friction_law_return['V_p']
     T_m = friction_law_return['T_m']
     T_p = friction_law_return['T_p']
-
-    L0 = 0.02
-    f0 = 0.6
-    b = 0.012
-    V0 = 1.0e-6
-    a = 0.008
+    
+    #friction_parameters = [fric_law, alpha, Tau_0, L0, f0, a, b, V0, sigma_n, alp_s, alp_d, D_c]    
+    #                        0         1      2     3   4  5  6   7    8       9      10    11 
+    L0 = friction_parameters[3]
+    f0 = friction_parameters[4]
+    b = friction_parameters[6]
+    V0 = friction_parameters[7]
+    a = friction_parameters[5]
     
     vv = np.abs(V_p-V_m)
     

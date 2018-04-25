@@ -33,7 +33,7 @@ def interface_condition(v_m,t_m,v_p,t_p,rho_m,mu_m,rho_p,mu_p):
     
     return {'V_m':V_m, 'V_p':V_p, 'T_m':T_m, 'T_p':T_p}
 
-def friction_law(v_m,t_m,v_p,t_p,S,psi,rho_m,mu_m,rho_p,mu_p,alpha,Tau_0,fric_law):
+def friction_law(v_m,t_m,v_p,t_p,S,psi,rho_m,mu_m,rho_p,mu_p,friction_parameters):
     #
     # generate interface data for an interface governed by a slip-weaking friction law
     
@@ -54,7 +54,13 @@ def friction_law(v_m,t_m,v_p,t_p,S,psi,rho_m,mu_m,rho_p,mu_p,alpha,Tau_0,fric_la
     eta_s = Zs_m * Zs_p/(Zs_m + Zs_p)                # half harmonic mean of shear impedance
     
     Phi = eta_s * (1.0/Zs_p * p_p - 1.0/Zs_m * q_m)  # stress transfer functional
-
+    
+    #friction_parameters = [fric_law, alpha, Tau_0, L0, f0, a, b, V0, sigma_n, alp_s, alp_d, D_c]    
+    #                        0         1      2     3   4  5  6   7    8       9      10    11 
+    Tau_0 = friction_parameters[2]
+    fric_law = friction_parameters[0]
+    alpha = friction_parameters[1]
+    
     if(fric_law in 'locked'):
 
         vv = 0.0                               # vanishing slip-rate (no slip condition)
@@ -73,7 +79,7 @@ def friction_law(v_m,t_m,v_p,t_p,S,psi,rho_m,mu_m,rho_p,mu_p,alpha,Tau_0,fric_la
     if(fric_law in 'SW'):
         
         Tau_lock = Phi + Tau_0
-        Tau_str = TauStrength(S)
+        Tau_str = TauStrength(S,friction_parameters)
     
  
         if Tau_lock >= Tau_str:                          #fault is sliping
@@ -119,7 +125,7 @@ def friction_law(v_m,t_m,v_p,t_p,S,psi,rho_m,mu_m,rho_p,mu_p,alpha,Tau_0,fric_la
             V = 0.5*Phi/eta_s
         
         # solve for slip rate (vv) and total traction (Tau_h)
-        rate_and_state_return = rate_and_state(V,Phi,Tau_0,psi,eta_s)
+        rate_and_state_return = rate_and_state(V,Phi,Tau_0,psi,eta_s,friction_parameters)
         
         Tau_h = rate_and_state_return['Tau_h']
         vv = rate_and_state_return['vv']
@@ -136,13 +142,14 @@ def friction_law(v_m,t_m,v_p,t_p,S,psi,rho_m,mu_m,rho_p,mu_p,alpha,Tau_0,fric_la
     return {'V_m':V_m, 'V_p':V_p, 'T_m':T_m, 'T_p':T_p}
 
 
-def TauStrength(S):
+def TauStrength(S, friction_parameters):
     import numpy as np
-
-    alp_s = 0.677                           # stastic friction
-    alp_d = 0.525                           # dynamic friction
-    nor_str = 120.0                         # normal stress
-    D_c = 0.40                              # critical slip
+    #friction_parameters = [fric_law, alpha, Tau_0, L0, f0, a, b, V0, sigma_n, alp_s, alp_d, D_c]    
+    #                        0         1      2     3   4  5  6   7    8       9      10    11 
+    alp_s = friction_parameters[9]                           # stastic friction
+    alp_d = friction_parameters[10]                           # dynamic friction
+    nor_str = friction_parameters[8]                         # normal stress
+    D_c = friction_parameters[11]                              # critical slip
     
     fric_coeff = alp_s - (alp_s-alp_d) * min(S,D_c)/D_c  # friction coefficient
     
@@ -160,15 +167,21 @@ def slip_weakening(phi,Tau_0, T_str, eta):
     return {'Tau_h':Tau_h,'vv':vv}
 
 
-def rate_and_state(V, phi,Tau_0, psi, eta):
+def rate_and_state(V, phi,Tau_0, psi, eta, friction_parameters):
     
     #L0 = 0.02
     #f0 = 0.6
     #b = 0.012
-
-    V0 = 1.0e-6        # reference velocity
-    a = 0.008          # direct effect
-    sigma_n = 120.0    # normal stress 
+    #friction_parameters = [fric_law, alpha, Tau_0, L0, f0, a, b, V0, sigma_n, alp_s, alp_d, D_c]    
+    #                        0         1      2     3   4  5  6   7    8       9      10    11 
+    sigma_n = friction_parameters[8]
+    V0 = friction_parameters[7]
+    a = friction_parameters[5]
+    
+    #V0 = 1.0e-6        # reference velocity
+    #a = 0.008          # direct effect
+    #sigma_n = 120.0    # normal stress 
+    
     PHI = phi+Tau_0
 
     # solve for slip-rate (vv):  
